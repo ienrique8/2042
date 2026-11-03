@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2042 · Cartera</title>
+<style>
+:root{--bg:#eef1f5;--card:#fff;--ink:#0b1f3a;--mu:#5b6b82;--ln:#e1e6ee;--ac:#a8842f;--up:#0e8a5f;--dn:#c0392b;--hd:#0b1f3a;--hdt:#f4f1e8;--soft:#f6f8fb;color-scheme:light}
+@media(prefers-color-scheme:dark){:root{--bg:#0a1220;--card:#101b2e;--ink:#e6ebf3;--mu:#8fa0b8;--ln:#1f2f48;--ac:#d4b062;--up:#34d399;--dn:#f87171;--hd:#060d1a;--hdt:#f4f1e8;--soft:#0c1627;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 "Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;font-variant-numeric:tabular-nums}
+.top{background:var(--hd);color:var(--hdt);border-bottom:3px solid var(--ac)}
+.top div{max-width:1040px;margin:0 auto;padding:22px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+.top h1{margin:0;font:600 30px Georgia,"Times New Roman",serif;letter-spacing:6px;color:var(--ac)}
+.top span{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;opacity:.75}
+main{max-width:1040px;margin:0 auto;padding:20px 20px 60px}
+h2{margin:0 0 14px;font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--mu)}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:6px;padding:18px 20px;margin-top:16px;box-shadow:0 1px 2px rgba(11,31,58,.05)}
+.kpis{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:16px}
+@media(max-width:820px){.kpis{grid-template-columns:1fr 1fr}}
+.kpi{background:var(--card);border:1px solid var(--ln);border-top:3px solid var(--ln);border-radius:6px;padding:16px 18px}
+.kpi.main{border-top-color:var(--ac)}
+.kpi small{display:block;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mu);margin-bottom:6px}
+.kpi b{font-size:24px;font-weight:600}.kpi.main b{font-size:32px}
+.up{color:var(--up)}.dn{color:var(--dn)}
+.sc{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--ln);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--mu);background:var(--soft);border-bottom:1px solid var(--ln)}
+tfoot td{font-weight:700;border-top:2px solid var(--ink);border-bottom:0}
+td.n{font-weight:600}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:860px){.two{grid-template-columns:1fr}}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+label{display:flex;flex-direction:column;font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--mu);gap:4px}
+input{background:var(--card);color:var(--ink);border:1px solid var(--ln);border-radius:4px;padding:8px 10px;font:inherit;letter-spacing:0;text-transform:none;min-width:110px;max-width:100%}
+input:focus{outline:2px solid var(--ac);outline-offset:-1px}
+button{background:var(--hd);color:var(--hdt);border:0;border-radius:4px;padding:9px 18px;font:600 13px inherit;font-family:inherit;letter-spacing:.5px;cursor:pointer}
+button:hover{filter:brightness(1.25)}
+button.g{background:transparent;color:var(--mu);border:1px solid var(--ln);font-weight:500}
+button.x{background:transparent;color:var(--dn);padding:2px 8px;font-size:17px;min-width:34px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
+.chips button{background:var(--soft);color:var(--ink);border:1px solid var(--ln);font-weight:500;padding:3px 11px;border-radius:99px;font-size:12px}
+.note{color:var(--mu);font-size:12px;margin:10px 0 0}
+.tb{margin-top:14px}
+#msg{display:none;position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--dn);color:#fff;padding:10px 18px;border-radius:4px;z-index:9}
+svg text{font-family:inherit}
+</style></head><body>
+<div class="top"><div><h1>2042</h1><span>Seguimiento de cartera · US$</span></div></div>
+<main>
+
+<div class="kpis">
+ <div class="kpi main"><small>Valor de la cartera</small><b id="kv">–</b></div>
+ <div class="kpi"><small>Inversión acumulada</small><b id="ki">–</b></div>
+ <div class="kpi"><small>Resultado</small><b id="kd">–</b></div>
+ <div class="kpi"><small>Variación</small><b id="kp">–</b></div>
+</div>
+
+<section class="card"><h2>Posiciones</h2>
+ <div class="sc"><table><thead><tr><th>Instrumento</th><th>Cantidad</th><th>Costo prom.</th><th>Precio actual</th><th>Invertido</th><th>Valor actual</th><th>Resultado</th><th>%</th><th>Peso</th></tr></thead>
+ <tbody id="it"></tbody><tfoot id="itf"></tfoot></table></div>
+</section>
+
+<section class="card"><h2>Evolución mensual</h2>
+ <svg id="ch" viewBox="0 0 640 200" style="width:100%;height:auto"></svg>
+ <div class="sc tb"><table><thead><tr><th>Mes</th><th>Aportes</th><th>Invertido</th><th>Valor cartera</th><th>Resultado</th><th>Variación</th></tr></thead><tbody id="mt"></tbody></table></div>
+</section>
+
+<div class="two">
+<section class="card"><h2>Operaciones</h2>
+ <div class="row">
+  <label>Instrumento<input id="oi" list="dl" placeholder="Ej: ETH, AAPL" autocomplete="off" style="min-width:140px"></label>
+  <label>Cantidad<input id="oq" inputmode="decimal" placeholder="0,000621"></label>
+  <label>Monto invertido<input id="oa" inputmode="decimal" placeholder="48"></label>
+  <label>Fecha<input id="od" type="date"></label>
+  <button onclick="addOp()">Agregar</button>
+ </div>
+ <div class="chips" id="oc"></div>
+ <div class="sc tb"><table><thead><tr><th>Instr.</th><th>Cant.</th><th>Monto</th><th>Fecha</th><th></th></tr></thead><tbody id="ot"></tbody></table></div>
+ <p class="note">Monto invertido = total pagado en la operación.</p>
+</section>
+
+<section class="card"><h2>Precios actuales</h2>
+ <div class="row">
+  <label>Instrumento<input id="vi" list="dl" placeholder="Elegí o escribí" autocomplete="off"></label>
+  <label>Precio de 1 unidad<input id="vv" inputmode="decimal" placeholder="77.000"></label>
+  <label>Fecha<input id="vd" type="date"></label>
+  <button onclick="addVal()">Agregar</button>
+ </div>
+ <div class="chips" id="vc"></div>
+ <div class="sc tb"><table><thead><tr><th>Instr.</th><th>Precio</th><th>Fecha</th><th></th></tr></thead><tbody id="vt"></tbody></table></div>
+ <p class="note">Cargá el precio de una unidad (ej. 1 BTC). Se multiplica solo por tu cantidad.</p>
+</section>
+</div>
+
+<div class="row" style="margin-top:18px">
+ <button class="g" onclick="exp()">Exportar respaldo</button>
+ <button class="g" onclick="document.getElementById('imp').click()">Importar respaldo</button>
+ <input id="imp" type="file" accept=".json" hidden onchange="imp(this)">
+ <span class="note" style="margin:0 0 0 6px">Los datos quedan guardados en este navegador.</span>
+</div>
+</main>
+<div id="msg"></div><datalist id="dl"></datalist>
+
+<script>
+const KEY='cartera2042';
+let S=null;
+try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!S||!S.ops)S={n:3,ops:[{id:1,inst:'QQQ',qty:1,amt:36.77,date:'2026-11-03'},{id:2,inst:'BTC',qty:0.000621,amt:48,date:'2026-11-03'}],vals:[]};
+S.vals=S.vals||[];S.n=S.n||1000;
+// migración: lo cargado antes como "value" ahora se interpreta como precio por unidad
+S.vals.forEach(v=>{if(v.price==null){v.price=v.value;delete v.value}});
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id);
+const num=s=>{s=String(s).trim();if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');return parseFloat(s)};
+const f=(n,d=2)=>n.toLocaleString('es-AR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fq=n=>n.toLocaleString('es-AR',{maximumFractionDigits:8});
+const usd=n=>'US$ '+f(n);
+const sgn=n=>(n>0?'+':'');
+const cls=n=>n>0.00001?'up':n<-0.00001?'dn':'';
+const pct=(v,i)=>i?(v/i-1)*100:0;
+const sp=n=>sgn(n)+f(n)+'%';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fd=d=>d.split('-').reverse().join('/');
+const today=()=>new Date().toISOString().slice(0,10);
+const mlab=m=>m.slice(5)+'/'+m.slice(0,4);
+
+function calc(m){
+  const ops=S.ops.filter(o=>!m||o.date.slice(0,7)<=m);
+  const pr=S.vals.filter(v=>!m||v.date.slice(0,7)<=m);
+  const by={};
+  ops.forEach(o=>{const b=by[o.inst]=by[o.inst]||{qty:0,inv:0,val:0,px:null};b.qty+=o.qty;b.inv+=o.amt});
+  let inv=0,val=0;
+  for(const k in by){
+    const ps=pr.filter(v=>v.inst===k).sort((a,b)=>a.date<b.date?-1:1);
+    const l=ps[ps.length-1],b=by[k];
+    if(l){
+      const q=ops.filter(o=>o.inst===k&&o.date<=l.date).reduce((s,o)=>s+o.qty,0);
+      const extra=ops.filter(o=>o.inst===k&&o.date>l.date).reduce((s,o)=>s+o.amt,0);
+      b.val=l.price*q+extra;b.px=l.price;
+    }else b.val=b.inv;
+    inv+=b.inv;val+=b.val;
+  }
+  return{by,inv,val};
+}
+
+function months(){
+  const ds=S.ops.map(o=>o.date).concat(S.vals.map(v=>v.date)).sort();
+  if(!ds.length)return[];
+  let [y,m]=ds[0].split('-').map(Number);
+  const last=ds[ds.length-1],end=(last>today()?last:today()).slice(0,7),out=[];
+  for(;;){const k=y+'-'+String(m).padStart(2,'0');out.push(k);if(k>=end)break;if(++m>12){m=1;y++}}
+  return out;
+}
+
+function chart(rows){
+  const s=$('ch');
+  if(!rows.length){s.innerHTML='';return}
+  const W=640,H=200,L=56,R=14,T=14,B=28;
+  const all=rows.flatMap(r=>[r.inv,r.val]);
+  let mn=Math.min(...all),mx=Math.max(...all);
+  const pad=(mx-mn)*0.2||mx*0.1||1;mn=Math.max(0,mn-pad);mx+=pad;
+  const px=i=>L+(rows.length>1?i*(W-L-R)/(rows.length-1):(W-L-R)/2);
+  const py=v=>T+(H-T-B)*(1-(v-mn)/(mx-mn));
+  let g='';
+  for(let i=0;i<=3;i++){const v=mn+(mx-mn)*i/3,y=py(v);
+    g+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="var(--ln)"/><text x="${L-8}" y="${y+4}" font-size="10" text-anchor="end" fill="var(--mu)">${f(v,v<100?1:0)}</text>`}
+  const pts=k=>rows.map((r,i)=>px(i)+','+py(r[k])).join(' ');
+  const area=rows.length>1?`<polygon points="${px(0)},${py(mn)} ${pts('val')} ${px(rows.length-1)},${py(mn)}" fill="var(--ac)" opacity=".12"/>`:'';
+  const dots=k=>rows.map((r,i)=>`<circle cx="${px(i)}" cy="${py(r[k])}" r="3.5" fill="${k==='val'?'var(--ac)':'var(--mu)'}"/>`).join('');
+  const lab=rows.map((r,i)=>(rows.length<=10||i%Math.ceil(rows.length/10)===0)?`<text x="${px(i)}" y="${H-8}" font-size="10" text-anchor="middle" fill="var(--mu)">${mlab(r.m)}</text>`:'').join('');
+  s.innerHTML=g+area+
+   `<polyline fill="none" stroke="var(--mu)" stroke-width="1.5" stroke-dasharray="5 4" points="${pts('inv')}"/>`+
+   `<polyline fill="none" stroke="var(--ac)" stroke-width="2.5" points="${pts('val')}"/>`+dots('inv')+dots('val')+lab+
+   `<g font-size="10" fill="var(--mu)"><line x1="${L}" x2="${L+18}" y1="8" y2="8" stroke="var(--ac)" stroke-width="2.5"/><text x="${L+24}" y="11">Valor</text><line x1="${L+70}" x2="${L+88}" y1="8" y2="8" stroke="var(--mu)" stroke-dasharray="4 3"/><text x="${L+94}" y="11">Invertido</text></g>`;
+}
+
+function render(){
+  const c=calc(null),d=c.val-c.inv,p=pct(c.val,c.inv);
+  $('kv').textContent=usd(c.val);$('ki').textContent=usd(c.inv);
+  $('kd').textContent=sgn(d)+usd(d);$('kd').className=cls(d);
+  $('kp').textContent=sp(p);$('kp').className=cls(p);
+
+  const keys=Object.keys(c.by);
+  $('it').innerHTML=keys.map(k=>{const b=c.by[k],r=b.val-b.inv,pp=pct(b.val,b.inv);
+    return`<tr><td class="n">${esc(k)}</td><td>${fq(b.qty)}</td><td>${f(b.inv/b.qty)}</td><td>${b.px==null?'–':f(b.px)}</td><td>${usd(b.inv)}</td><td>${usd(b.val)}</td><td class="${cls(r)}">${sgn(r)}${f(r)}</td><td class="${cls(pp)}">${sp(pp)}</td><td>${f(c.val?b.val/c.val*100:0,1)}%</td></tr>`}).join('');
+  $('itf').innerHTML=keys.length?`<tr><td>Total</td><td></td><td></td><td></td><td>${usd(c.inv)}</td><td>${usd(c.val)}</td><td class="${cls(d)}">${sgn(d)}${f(d)}</td><td class="${cls(p)}">${sp(p)}</td><td>100%</td></tr>`:'';
+
+  const rows=months().map(m=>{const r=calc(m);return{m,inv:r.inv,val:r.val}});
+  $('mt').innerHTML=rows.map((r,i)=>({r,a:r.inv-(i?rows[i-1].inv:0)})).reverse().map(({r,a})=>{const d=r.val-r.inv,p=pct(r.val,r.inv);
+    return`<tr><td class="n">${mlab(r.m)}</td><td>${a?usd(a):'–'}</td><td>${usd(r.inv)}</td><td>${usd(r.val)}</td><td class="${cls(d)}">${sgn(d)}${f(d)}</td><td class="${cls(p)}">${sp(p)}</td></tr>`}).join('');
+  chart(rows);
+
+  $('ot').innerHTML=S.ops.slice().sort((a,b)=>a.date<b.date?1:-1).map(o=>
+    `<tr><td class="n">${esc(o.inst)}</td><td>${fq(o.qty)}</td><td>${f(o.amt)}</td><td>${fd(o.date)}</td><td><button class="x" title="Borrar" onclick="del('ops',${o.id})">${pend==='ops'+o.id?'¿Borrar?':'×'}</button></td></tr>`).join('');
+  $('vt').innerHTML=S.vals.slice().sort((a,b)=>a.date<b.date?1:-1).map(v=>
+    `<tr><td class="n">${esc(v.inst)}</td><td>${f(v.price)}</td><td>${fd(v.date)}</td><td><button class="x" title="Borrar" onclick="del('vals',${v.id})">${pend==='vals'+v.id?'¿Borrar?':'×'}</button></td></tr>`).join('');
+
+  const names=[...new Set(S.ops.map(o=>o.inst))];
+  const chips=t=>names.map(i=>`<button onclick="$('${t}').value='${esc(i)}';$('${t}').focus()">${esc(i)}</button>`).join('');
+  $('oc').innerHTML=chips('oi');$('vc').innerHTML=chips('vi');
+  $('dl').innerHTML=names.map(i=>`<option value="${esc(i)}">`).join('');
+}
+
+function warn(t){const m=$('msg');m.textContent=t;m.style.display='block';clearTimeout(warn.t);warn.t=setTimeout(()=>m.style.display='none',4000)}
+function addOp(){
+  const inst=$('oi').value.trim().toUpperCase(),qty=num($('oq').value),amt=num($('oa').value),date=$('od').value||today();
+  if(!inst||!(qty>0)||!(amt>0)){warn('Completá instrumento, cantidad y monto.');return}
+  S.ops.push({id:S.n++,inst,qty,amt,date});save();['oi','oq','oa'].forEach(i=>$(i).value='');render();
+}
+function addVal(){
+  const inst=$('vi').value.trim().toUpperCase(),price=num($('vv').value),date=$('vd').value||today();
+  if(!inst||!(price>=0)){warn('Completá instrumento y precio.');return}
+  if(!S.ops.some(o=>o.inst===inst)){warn('Ese instrumento no tiene operaciones cargadas.');return}
+  S.vals.push({id:S.n++,inst,price,date});save();['vi','vv'].forEach(i=>$(i).value='');render();
+}
+let pend=null,pt;
+function del(t,id){
+  const k=t+id;
+  if(pend!==k){pend=k;clearTimeout(pt);pt=setTimeout(()=>{pend=null;render()},3000);render();return}
+  pend=null;S[t]=S[t].filter(x=>x.id!==id);save();render();
+}
+function exp(){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:'application/json'}));
+  a.download='cartera-2042.json';a.click();
+}
+function imp(el){
+  const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.ops)throw 0;S=d;S.vals=(S.vals||[]).map(v=>v.price==null?{...v,price:v.value}:v);S.n=S.n||1000;save();render()}catch(e){warn('Archivo inválido')}};
+  if(el.files[0])r.readAsText(el.files[0]);
+}
+$('od').value=today();$('vd').value=today();
+save();render();
+</script></body></html>
