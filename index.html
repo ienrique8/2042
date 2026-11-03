@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2042</title>
+<style>
+:root{--bg:#0f1115;--card:#181b22;--tx:#e8eaed;--mu:#8b93a1;--bd:#262a33;--up:#3ecf8e;--dn:#f06262;--ac:#f5b942;color-scheme:dark}
+@media(prefers-color-scheme:light){:root{--bg:#f5f6f8;--card:#fff;--tx:#14171c;--mu:#6b7380;--bd:#e3e6eb;--up:#0f9d63;--dn:#d33b3b;--ac:#b9770e;color-scheme:light}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:980px;margin:0 auto;padding:24px 16px 60px}
+header{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+h1{margin:0;font-size:34px;letter-spacing:2px;color:var(--ac)}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--mu);margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-top:16px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.k small{color:var(--mu);display:block}.k b{font-size:26px}
+.up{color:var(--up)}.dn{color:var(--dn)}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--bd);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--mu);font-weight:500;font-size:13px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:end}
+label{display:flex;flex-direction:column;font-size:12px;color:var(--mu);gap:3px}
+input{background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:8px;font:inherit;min-width:120px}
+button{background:var(--ac);color:#111;border:0;border-radius:8px;padding:9px 14px;font:inherit;font-weight:600;cursor:pointer}
+button.g{background:transparent;color:var(--mu);border:1px solid var(--bd);font-weight:400}
+button.x{background:transparent;color:var(--dn);padding:2px 8px;font-size:18px;min-width:32px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.chips button{background:var(--bg);color:var(--tx);border:1px solid var(--bd);font-weight:400;padding:3px 10px;border-radius:99px;font-size:13px}
+.note{color:var(--mu);font-size:12px;margin-top:8px}
+</style></head><body><main>
+<header><h1>2042</h1><span class="note" style="margin:0">Valores en US$ · los datos se guardan en este navegador</span></header>
+
+<section class="card"><div class="kpis">
+ <div class="k"><small>Total de la cartera</small><b id="kv">–</b></div>
+ <div class="k"><small>Inversión acumulada</small><b id="ki">–</b></div>
+ <div class="k"><small>Resultado vs inversión</small><b id="kd">–</b></div>
+ <div class="k"><small>Variación %</small><b id="kp">–</b></div>
+</div></section>
+
+<section class="card"><h2>Evolución mes a mes</h2>
+ <svg id="ch" viewBox="0 0 600 150" style="width:100%;height:auto"></svg>
+ <div class="scroll"><table><thead><tr><th>Mes</th><th>Invertido</th><th>Valor cartera</th><th>Resultado</th><th>%</th></tr></thead><tbody id="mt"></tbody></table></div>
+</section>
+
+<section class="card"><h2>Por instrumento</h2>
+ <div class="scroll"><table><thead><tr><th>Instrumento</th><th>Cantidad</th><th>Invertido</th><th>Valor actual</th><th>%</th></tr></thead><tbody id="it"></tbody></table></div>
+</section>
+
+<div class="grid2">
+<section class="card"><h2>Cargar operación (compra)</h2>
+ <div class="row">
+  <label>Instrumento (escribí cualquiera)<input id="oi" list="dl" placeholder="Ej: ETH, AAPL, SPY" autocomplete="off" style="min-width:190px"></label>
+  <label>Cantidad<input id="oq" inputmode="decimal" placeholder="0,000621"></label>
+  <label>Monto invertido<input id="oa" inputmode="decimal" placeholder="48"></label>
+  <label>Fecha<input id="od" type="date"></label>
+  <button onclick="addOp()">Agregar</button>
+ </div>
+ <div class="chips" id="oc"></div>
+ <div class="scroll" style="margin-top:12px"><table><thead><tr><th>Instr.</th><th>Cant.</th><th>Monto</th><th>Fecha</th><th></th></tr></thead><tbody id="ot"></tbody></table></div>
+</section>
+
+<section class="card"><h2>Cargar valuación (valor actual)</h2>
+ <div class="row">
+  <label>Instrumento<input id="vi" list="dl" placeholder="Elegí o escribí" autocomplete="off"></label>
+  <label>Valor de toda la tenencia<input id="vv" inputmode="decimal" placeholder="40,10"></label>
+  <label>Fecha<input id="vd" type="date"></label>
+  <button onclick="addVal()">Agregar</button>
+ </div>
+ <div class="chips" id="vc"></div>
+ <div class="scroll" style="margin-top:12px"><table><thead><tr><th>Instr.</th><th>Valor</th><th>Fecha</th><th></th></tr></thead><tbody id="vt"></tbody></table></div>
+ <p class="note">Sin valuación, el instrumento vale lo que invertiste. Cargá una cada mes para ver la subida o bajada.</p>
+</section>
+</div>
+
+<div class="row" style="margin-top:16px">
+ <button class="g" onclick="exp()">Exportar respaldo</button>
+ <button class="g" onclick="document.getElementById('imp').click()">Importar respaldo</button>
+ <input id="imp" type="file" accept=".json" hidden onchange="imp(this)">
+</div>
+<div id="msg" style="display:none;position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--dn);color:#fff;padding:10px 16px;border-radius:8px;z-index:9"></div>
+<datalist id="dl"></datalist>
+</main>
+<script>
+const KEY='cartera2042';
+let S=null;
+try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!S||!S.ops)S={n:3,ops:[{id:1,inst:'QQQ',qty:1,amt:36.77,date:'2026-11-03'},{id:2,inst:'BTC',qty:0.000621,amt:48,date:'2026-11-03'}],vals:[]};
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id);
+const num=s=>parseFloat(String(s).trim().replace(/\./g,m=>/,/.test(s)?'':'.').replace(',','.'));
+const f=(n,d=2)=>n.toLocaleString('es-AR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const usd=n=>'US$ '+f(n);
+const cls=n=>n>0?'up':n<0?'dn':'';
+const sg=n=>(n>0?'+':'')+f(n)+'%';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fd=d=>d.split('-').reverse().join('/');
+const today=()=>new Date().toISOString().slice(0,10);
+
+function calc(m){
+  const ops=S.ops.filter(o=>!m||o.date.slice(0,7)<=m);
+  const vals=S.vals.filter(v=>!m||v.date.slice(0,7)<=m);
+  const by={};
+  ops.forEach(o=>{const b=by[o.inst]=by[o.inst]||{qty:0,inv:0,val:0};b.qty+=o.qty;b.inv+=o.amt});
+  let inv=0,val=0;
+  for(const k in by){
+    const vs=vals.filter(v=>v.inst===k).sort((a,b)=>a.date<b.date?-1:1);
+    const l=vs[vs.length-1];
+    by[k].val=l?l.value+ops.filter(o=>o.inst===k&&o.date>l.date).reduce((s,o)=>s+o.amt,0):by[k].inv;
+    inv+=by[k].inv;val+=by[k].val;
+  }
+  return{by,inv,val};
+}
+const pc=(v,i)=>i?(v/i-1)*100:0;
+
+function months(){
+  const ds=S.ops.map(o=>o.date).concat(S.vals.map(v=>v.date));
+  if(!ds.length)return[];
+  ds.sort();
+  let [y,m]=ds[0].split('-').map(Number);
+  const end=(ds[ds.length-1]>today()?ds[ds.length-1]:today()).slice(0,7);
+  const out=[];
+  for(;;){const k=y+'-'+String(m).padStart(2,'0');out.push(k);if(k>=end)break;if(++m>12){m=1;y++}}
+  return out;
+}
+
+function chart(rows){
+  const s=$('ch');
+  if(!rows.length){s.innerHTML='';return}
+  const all=rows.flatMap(r=>[r.inv,r.val]);
+  const mn=Math.min(...all)*0.97,mx=Math.max(...all)*1.03||1,W=560,H=110,X=20,Y=15;
+  const px=i=>X+(rows.length>1?i*(W-X)/(rows.length-1):(W-X)/2);
+  const py=v=>Y+H-(v-mn)/((mx-mn)||1)*H;
+  const line=(k,c,d)=>`<polyline fill="none" stroke="${c}" stroke-width="2" ${d?'stroke-dasharray="5 4"':''} points="${rows.map((r,i)=>px(i)+','+py(r[k])).join(' ')}"/>`+rows.map((r,i)=>`<circle cx="${px(i)}" cy="${py(r[k])}" r="3" fill="${c}"/>`).join('');
+  const lab=rows.map((r,i)=>(rows.length<=12||i%Math.ceil(rows.length/12)===0)?`<text x="${px(i)}" y="146" font-size="10" text-anchor="middle" fill="var(--mu)">${r.m.slice(5)}/${r.m.slice(2,4)}</text>`:'').join('');
+  s.innerHTML=line('inv','var(--mu)',true)+line('val','var(--ac)')+lab+`<text x="${X}" y="10" font-size="10" fill="var(--mu)">— valor  ┄ invertido</text>`;
+}
+
+function render(){
+  const c=calc(null),d=c.val-c.inv,p=pc(c.val,c.inv);
+  $('kv').textContent=usd(c.val);$('ki').textContent=usd(c.inv);
+  $('kd').textContent=(d>0?'+':'')+usd(d);$('kd').className=cls(d);
+  $('kp').textContent=sg(p);$('kp').className=cls(p);
+
+  const rows=months().map(m=>{const r=calc(m);return{m,inv:r.inv,val:r.val}});
+  $('mt').innerHTML=rows.slice().reverse().map(r=>{const d=r.val-r.inv,p=pc(r.val,r.inv);
+    return`<tr><td>${r.m.slice(5)}/${r.m.slice(0,4)}</td><td>${usd(r.inv)}</td><td>${usd(r.val)}</td><td class="${cls(d)}">${usd(d)}</td><td class="${cls(p)}">${sg(p)}</td></tr>`}).join('');
+  chart(rows);
+
+  $('it').innerHTML=Object.keys(c.by).map(k=>{const b=c.by[k],p=pc(b.val,b.inv);
+    return`<tr><td>${esc(k)}</td><td>${f(b.qty,6).replace(/,?0+$/,'')}</td><td>${usd(b.inv)}</td><td>${usd(b.val)}</td><td class="${cls(p)}">${sg(p)}</td></tr>`}).join('');
+
+  $('ot').innerHTML=S.ops.slice().sort((a,b)=>a.date<b.date?1:-1).map(o=>
+    `<tr><td>${esc(o.inst)}</td><td>${f(o.qty,6).replace(/,?0+$/,'')}</td><td>${f(o.amt)}</td><td>${fd(o.date)}</td><td><button class="x" title="Borrar" onclick="del('ops',${o.id})">${pend==='ops'+o.id?'¿Borrar?':'×'}</button></td></tr>`).join('');
+  $('vt').innerHTML=S.vals.slice().sort((a,b)=>a.date<b.date?1:-1).map(v=>
+    `<tr><td>${esc(v.inst)}</td><td>${f(v.value)}</td><td>${fd(v.date)}</td><td><button class="x" title="Borrar" onclick="del('vals',${v.id})">${pend==='vals'+v.id?'¿Borrar?':'×'}</button></td></tr>`).join('');
+  const names=[...new Set(S.ops.map(o=>o.inst))];
+  const chips=t=>names.map(i=>`<button onclick="$('${t}').value='${esc(i)}';$('${t}').focus()">${esc(i)}</button>`).join('');
+  $('oc').innerHTML=chips('oi');$('vc').innerHTML=chips('vi');
+  $('dl').innerHTML=[...new Set(S.ops.map(o=>o.inst))].map(i=>`<option value="${esc(i)}">`).join('');
+}
+
+function addOp(){
+  const inst=$('oi').value.trim().toUpperCase(),qty=num($('oq').value),amt=num($('oa').value),date=$('od').value||today();
+  if(!inst||!(qty>0)||!(amt>0)){warn('Completá instrumento, cantidad y monto.');return}
+  S.ops.push({id:S.n++,inst,qty,amt,date});save();['oi','oq','oa'].forEach(i=>$(i).value='');render();
+}
+function addVal(){
+  const inst=$('vi').value.trim().toUpperCase(),value=num($('vv').value),date=$('vd').value||today();
+  if(!inst||!(value>=0)){warn('Completá instrumento y valor.');return}
+  if(!S.ops.some(o=>o.inst===inst)){warn('Ese instrumento no tiene operaciones cargadas.');return}
+  S.vals.push({id:S.n++,inst,value,date});save();['vi','vv'].forEach(i=>$(i).value='');render();
+}
+let pend=null,pt;
+function del(t,id){
+  const k=t+id;
+  if(pend!==k){pend=k;clearTimeout(pt);pt=setTimeout(()=>{pend=null;render()},3000);render();return}
+  pend=null;S[t]=S[t].filter(x=>x.id!==id);save();render();
+}
+function warn(t){const m=$('msg');m.textContent=t;m.style.display='block';clearTimeout(warn.t);warn.t=setTimeout(()=>m.style.display='none',4000)}
+function exp(){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:'application/json'}));
+  a.download='cartera-2042.json';a.click();
+}
+function imp(el){
+  const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.ops)throw 0;S=d;S.vals=S.vals||[];S.n=S.n||1000;save();render()}catch(e){warn('Archivo inválido')}};
+  if(el.files[0])r.readAsText(el.files[0]);
+}
+$('od').value=today();$('vd').value=today();
+render();
+</script></body></html>
